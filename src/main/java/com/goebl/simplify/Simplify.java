@@ -8,20 +8,19 @@ package com.goebl.simplify;
  */
 public class Simplify<T> extends AbstractSimplify<T> {
 
-    private final PointExtractor<T> pointExtractor;
+    private final PointExtractor<? super T> pointExtractor;
 
     /**
      * Simple constructor for 2D-Simplifier.
      * <br>
      * With this simple constructor your array elements must implement {@link Point}.<br>
      * If you have coordinate classes which cannot be changed to implement <code>Point</code>, use
-     * {@link #Simplify(Object[], PointExtractor)} constructor!
+     * {@link #Simplify(PointExtractor)} constructor!
      *
-     * @param sampleArray pass just an empty array (<code>new MyPoint[0]</code>) - necessary for type consistency.
      */
-    public Simplify(T[] sampleArray) {
-        super(sampleArray);
-        this.pointExtractor = new PointExtractor<T>() {
+    public Simplify() {
+        super();
+        this.pointExtractor = new PointExtractor<>() {
             @Override
             public double getX(T point) {
                 return ((Point) point).getX();
@@ -40,11 +39,10 @@ public class Simplify<T> extends AbstractSimplify<T> {
      * With this constructor your array elements do not have to implement a special interface like {@link Point}.<br>
      * Implement a {@link PointExtractor} to give <code>Simplify</code> access to your coordinates.
      *
-     * @param sampleArray pass just an empty array (<code>new MyPoint[0]</code>) - necessary for type consistency.
      * @param pointExtractor your implementation to extract X and Y coordinates from you array elements.
      */
-    public Simplify(T[] sampleArray, PointExtractor<T> pointExtractor) {
-        super(sampleArray);
+    public Simplify(PointExtractor<? super T> pointExtractor) {
+        super();
         this.pointExtractor = pointExtractor;
     }
 

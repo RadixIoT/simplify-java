@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -51,7 +53,7 @@ public class SimplifyTest {
 
     @Test
     public void testCustomPointExtractor() {
-        PointExtractor<float[]> pointExtractor = new PointExtractor<float[]>() {
+        PointExtractor<float[]> pointExtractor = new PointExtractor<>() {
             @Override
             public double getX(float[] point) {
                 return point[0];
@@ -63,34 +65,35 @@ public class SimplifyTest {
             }
         };
 
-        Simplify<float[]> simplify = new Simplify<float[]>(new float[0][0], pointExtractor);
+        Simplify<float[]> simplify = new Simplify<>(pointExtractor);
 
-        float[][] simplified = simplify.simplify(POINTS_2D, 5.0f, false);
-        Assert.assertEquals("array should be simplified", 2, simplified.length);
+        List<float[]> simplified = simplify.simplify(Arrays.stream(POINTS_2D).toList(), 5.0f, false);
+        Assert.assertEquals("array should be simplified", 2, simplified.size());
 
-        simplified = simplify.simplify(POINTS_2D, 5.0f, true);
-        Assert.assertEquals("array should be simplified", 2, simplified.length);
+        simplified = simplify.simplify(Arrays.stream(POINTS_2D).toList(), 5.0f, true);
+        Assert.assertEquals("array should be simplified", 2, simplified.size());
     }
 
     @Test
     public void testInvalidPointsParam() {
-        Simplify<Point> aut = new Simplify<Point>(new MyPoint[0]);
-        Assert.assertNull("return null when point-array is null", aut.simplify(null, 1f, false));
+        Simplify<Point> aut = new Simplify<>();
+        Assert.assertThrows("throws when point-array is null", IllegalArgumentException.class,
+                () -> aut.simplify(null, 1f, false));
 
-        Point[] only2 = new Point[2];
-        only2[0] = new MyPoint(1, 2);
-        only2[1] = new MyPoint(2, 3);
+        List<Point> only2 = new ArrayList<>();
+        only2.add(new MyPoint(1, 2));
+        only2.add(new MyPoint(2, 3));
 
-        Assert.assertTrue("return identical array when less than 3 points",
-                only2 == aut.simplify(only2, 1f, false));
+        Assert.assertEquals("return identical array when less than 3 points",
+                only2, aut.simplify(only2, 1f, false));
     }
 
     private void assertPointsEqual(float tolerance, boolean highQuality) throws Exception {
         Point[] pointsExpected = readPoints(tolerance, highQuality);
         long start = System.nanoTime();
 
-        Simplify<Point> aut = new Simplify<Point>(new MyPoint[0]);
-        Point[] pointsActual = aut.simplify(allPoints, tolerance, highQuality);
+        Simplify<Point> aut = new Simplify<>();
+        List<Point> pointsActual = aut.simplify(Arrays.stream(allPoints).toList(), tolerance, highQuality);
         long end = System.nanoTime();
         System.out.println("tolerance=" + tolerance + " hq=" + highQuality
                 + " nanos=" + (end - start));
@@ -98,8 +101,8 @@ public class SimplifyTest {
         Assert.assertNotNull("wrong test setup", pointsExpected);
         Assert.assertNotNull("simplify must return Point[]", pointsActual);
 
-        Assert.assertArrayEquals("tolerance=" + tolerance + " hq=" + highQuality,
-                pointsExpected, pointsActual);
+        Assert.assertEquals("tolerance=" + tolerance + " hq=" + highQuality,
+                Arrays.stream(pointsExpected).toList(), pointsActual);
     }
 
     private static Point[] readPoints(float tolerance, boolean highQuality) throws Exception {
@@ -108,15 +111,13 @@ public class SimplifyTest {
     }
 
     static Point[] readPoints(String fileName) throws Exception {
-        List<MyPoint> pointList = new ArrayList<MyPoint>();
+        List<MyPoint> pointList = new ArrayList<>();
         File file = new File("src/test/resources", fileName);
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        try (InputStream is = new FileInputStream(file)) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().length() == 0) {
+                if (line.trim().isEmpty()) {
                     continue;
                 }
                 String[] xy = line.split(",");
@@ -124,12 +125,8 @@ public class SimplifyTest {
                 double y = Double.parseDouble(xy[1]);
                 pointList.add(new MyPoint(x, y));
             }
-        } finally {
-            if (is != null) {
-                is.close();
-            }
         }
-        return pointList.toArray(new MyPoint[pointList.size()]);
+        return pointList.toArray(new MyPoint[0]);
     }
 
     private static class MyPoint implements Point {
@@ -164,9 +161,7 @@ public class SimplifyTest {
             MyPoint myPoint = (MyPoint) o;
 
             if (Double.compare(myPoint.x, x) != 0) return false;
-            if (Double.compare(myPoint.y, y) != 0) return false;
-
-            return true;
+            return Double.compare(myPoint.y, y) == 0;
         }
 
     }

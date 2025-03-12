@@ -11,7 +11,7 @@ import java.util.List;
  * Test class for {@link Simplify} in context of typical Gps-Tracks.
  * <br>
  * This is more of a demonstration than a test.
- * See http://stackoverflow.com/q/34010298/2176962
+ * See <a href="http://stackoverflow.com/q/34010298/2176962">http://stackoverflow.com/q/34010298/2176962</a>
  *
  * @author goebl
  * @since 01.12.15
@@ -36,9 +36,9 @@ public class GpsLocationTest {
         }
     }
 
-    private static LatLng[] coords;
+    private static List<LatLng> coords;
 
-    private static PointExtractor<LatLng> latLngPointExtractor = new PointExtractor<LatLng>() {
+    private static final PointExtractor<LatLng> latLngPointExtractor = new PointExtractor<>() {
         @Override
         public double getX(LatLng point) {
             return point.getLat() * 1000000;
@@ -53,25 +53,25 @@ public class GpsLocationTest {
     @BeforeClass
     public static void readPoints() throws Exception {
         Point[] allPoints = SimplifyTest.readPoints("gps-track.txt");
-        List<LatLng> coordsList = new ArrayList<LatLng>(allPoints.length);
+        List<LatLng> coordsList = new ArrayList<>(allPoints.length);
 
         for (Point point:allPoints) {
             coordsList.add(new LatLng(point.getX(), point.getY()));
         }
-        coords = coordsList.toArray(new LatLng[coordsList.size()]);
+        coords = coordsList;
     }
 
     @Test
-    public void testSimplifyGpsTrack() throws Exception {
-        Simplify<LatLng> simplify = new Simplify<LatLng>(new LatLng[0], latLngPointExtractor);
+    public void testSimplifyGpsTrack() {
+        Simplify<LatLng> simplify = new Simplify<>(latLngPointExtractor);
 
-        LatLng[] simplified = simplify.simplify(coords, 20f, false);
-        System.out.println("coords:" + coords.length + " simplified:" + simplified.length);
-        Assert.assertTrue("should be simplified to less than 33%", simplified.length < (coords.length / 3));
+        List<LatLng> simplified = simplify.simplify(coords, 20f, false);
+        System.out.println("coords:" + coords.size() + " simplified:" + simplified.size());
+        Assert.assertTrue("should be simplified to less than 33%", simplified.size() < (coords.size() / 3));
 
         simplified = simplify.simplify(coords, 50f, true);
-        System.out.println("coords:" + coords.length + " simplified:" + simplified.length);
-        Assert.assertTrue("should be simplified to less than 20%", simplified.length < (coords.length * 0.2));
+        System.out.println("coords:" + coords.size() + " simplified:" + simplified.size());
+        Assert.assertTrue("should be simplified to less than 20%", simplified.size() < (coords.size() * 0.2));
     }
 
 }

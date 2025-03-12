@@ -3,6 +3,10 @@ package com.goebl.simplify;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Test class for {@link com.goebl.simplify.Simplify}.
  *
@@ -17,7 +21,7 @@ public class Simplify3DTest {
 
     @Test
     public void testCustomPoint3DExtractor() {
-        Point3DExtractor<float[]> pointExtractor = new Point3DExtractor<float[]>() {
+        Point3DExtractor<float[]> pointExtractor = new Point3DExtractor<>() {
             @Override
             public double getX(float[] point) {
                 return point[0];
@@ -34,29 +38,29 @@ public class Simplify3DTest {
             }
         };
 
-        Simplify3D<float[]> simplify = new Simplify3D<float[]>(new float[0][0], pointExtractor);
+        Simplify3D<float[]> simplify = new Simplify3D<>(pointExtractor);
 
-        float[][] simplified = simplify.simplify(POINTS_3D, 5.0f, false);
-        Assert.assertEquals("array should be simplified", 2, simplified.length);
+        List<float[]> simplified = simplify.simplify(Arrays.stream(POINTS_3D).toList(), 5.0f, false);
+        Assert.assertEquals("array should be simplified", 2, simplified.size());
 
-        simplified = simplify.simplify(POINTS_3D, 5.0f, true);
-        Assert.assertEquals("array should be simplified", 2, simplified.length);
+        simplified = simplify.simplify(Arrays.stream(POINTS_3D).toList(), 5.0f, true);
+        Assert.assertEquals("array should be simplified", 2, simplified.size());
     }
 
     @Test
     public void testDefaultPointExtractor() {
-        Point3D[] points = new MyPoint[POINTS_3D.length];
-        for (int i = 0; i < POINTS_3D.length; ++i) {
-            points[i] = new MyPoint(POINTS_3D[i][0], POINTS_3D[i][1], POINTS_3D[i][2]);
+        List<Point3D> points = new ArrayList<>();
+        for (float[] floats : POINTS_3D) {
+            points.add(new MyPoint(floats[0], floats[1], floats[2]));
         }
 
-        Simplify3D<Point3D> simplify3D = new Simplify3D<Point3D>(new MyPoint[0]);
+        Simplify3D<Point3D> simplify3D = new Simplify3D<>();
 
-        Point3D[] simplified = simplify3D.simplify(points, 5.0d, false);
-        Assert.assertEquals("array should be simplified", 2, simplified.length);
+        List<Point3D> simplified = simplify3D.simplify(points, 5.0d, false);
+        Assert.assertEquals("array should be simplified", 2, simplified.size());
 
         simplified = simplify3D.simplify(points, 5.0d, true);
-        Assert.assertEquals("array should be simplified", 2, simplified.length);
+        Assert.assertEquals("array should be simplified", 2, simplified.size());
     }
 
     private static class MyPoint implements Point3D {
@@ -99,9 +103,7 @@ public class Simplify3DTest {
 
             if (Double.compare(myPoint.x, x) != 0) return false;
             if (Double.compare(myPoint.y, y) != 0) return false;
-            if (Double.compare(myPoint.z, z) != 0) return false;
-
-            return true;
+            return Double.compare(myPoint.z, z) == 0;
         }
 
     }
