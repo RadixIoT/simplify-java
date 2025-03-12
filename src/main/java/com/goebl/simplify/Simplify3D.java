@@ -14,10 +14,10 @@ public class Simplify3D<T> extends AbstractSimplify<T> {
      * Simple constructor for 3D-Simplifier.
      * <br>
      * With this simple constructor your array elements must implement {@link Point3D}.<br>
-     * If you have coordinate classes which cannot be changed to implement <tt>Point3D</tt>, use
+     * If you have coordinate classes which cannot be changed to implement <code>Point3D</code>, use
      * {@link #Simplify3D(Object[], Point3DExtractor)} constructor!
      *
-     * @param sampleArray pass just an empty array (<tt>new MyPoint[0]</tt>) - necessary for type consistency.
+     * @param sampleArray pass just an empty array (<code>new MyPoint[0]</code>) - necessary for type consistency.
      */
     public Simplify3D(T[] sampleArray) {
         super(sampleArray);
@@ -43,9 +43,9 @@ public class Simplify3D<T> extends AbstractSimplify<T> {
      * Alternative constructor for 3D-Simplifier.
      * <br>
      * With this constructor your array elements do not have to implement a special interface like {@link Point3D}.<br>
-     * Implement a {@link Point3DExtractor} to give <tt>Simplify3D</tt> access to your coordinates.
+     * Implement a {@link Point3DExtractor} to give <code>Simplify3D</code> access to your coordinates.
      *
-     * @param sampleArray pass just an empty array (<tt>new MyPoint[0]</tt>) - necessary for type consistency.
+     * @param sampleArray pass just an empty array (<code>new MyPoint[0]</code>) - necessary for type consistency.
      * @param pointExtractor your implementation to extract X, Y and Z coordinates from you array elements.
      */
     public Simplify3D(T[] sampleArray, Point3DExtractor<T> pointExtractor) {

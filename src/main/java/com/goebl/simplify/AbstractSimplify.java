@@ -22,8 +22,8 @@ abstract class AbstractSimplify<T> {
      * Simplifies a list of points to a shorter list of points.
      * @param points original list of points
      * @param tolerance tolerance in the same measurement as the point coordinates
-     * @param highestQuality <tt>true</tt> for using Douglas-Peucker only,
-     *                       <tt>false</tt> for using Radial-Distance algorithm before
+     * @param highestQuality <code>true</code> for using Douglas-Peucker only,
+     *                       <code>false</code> for using Radial-Distance algorithm before
      *                       applying Douglas-Peucker (should be a bit faster)
      * @return simplified list of points
      */
