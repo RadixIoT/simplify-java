@@ -6,7 +6,7 @@
 
     <groupId>com.goebl</groupId>
     <artifactId>simplify</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <name>simplify-java</name>
@@ -14,8 +14,10 @@
     <url>https://github.com/hgoebl/simplify-java</url>
 
     <properties>
+        <revision>1.0.1-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
+        <additionalDeploymentRepositoryId>additional-deployment-repository</additionalDeploymentRepositoryId>
     </properties>
 
     <dependencies>
@@ -51,14 +53,12 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>ias-snapshots</id>
+            <url>https://maven.mangoautomation.net/repository/ias-snapshot/</url>
         </snapshotRepository>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Nexus release repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>ias-releases</id>
+            <url>https://maven.mangoautomation.net/repository/ias-release/</url>
         </repository>
     </distributionManagement>
 
@@ -73,6 +73,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.4</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -107,6 +112,32 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -131,6 +162,33 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>additional-deployment-repository</id>
+            <activation>
+                <property>
+                    <name>additionalDeploymentRepositoryUrl</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>additional-deployment-repository</id>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                                <configuration>
+                                    <altDeploymentRepository>${additionalDeploymentRepositoryId}::${additionalDeploymentRepositoryUrl}</altDeploymentRepository>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
